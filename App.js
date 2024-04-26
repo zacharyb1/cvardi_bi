@@ -4,7 +4,12 @@ import { StyleSheet, Text, View } from 'react-native';
 export default function App() {
   return (
     <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
+      <Text>Here is our app for SmartBi challenge!
+        The stuff to do:
+        1. integrate CV to the app/create a backend server which will process video (open app, chose video from gallery, analise it)
+        2. make front-end using tsx format
+        3. Create a backend server  
+      </Text>
       <StatusBar style="auto" />
     </View>
   );
