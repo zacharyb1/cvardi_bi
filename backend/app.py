@@ -1,10 +1,12 @@
 import csv
 import os
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 from helpers import save_image_to_folder
 from helpers import label_images
 
 app = Flask(__name__)
+CORS(app)
 
 # Existing user data (replace with your data storage logic)
 users = {}

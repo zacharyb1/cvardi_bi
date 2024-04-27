@@ -1,32 +1,35 @@
 import asyncio
 import base64
-from flask import Flask, request, jsonify
-import websockets
-import numpy as np
+import datetime
+from io import BytesIO
 
-def hangle_frame(frame):
-    pass
+import numpy as np
+import websockets
+from PIL import Image
+
+
+def handle_frame(frame: np.ndarray):
+    Image.fromarray(frame).save(f"images/{str(datetime.datetime.now())}.jpg")
+
 
 async def handle_client(websocket):
-    while True:
-        try:
+    try:
+        while True:
             # Receive the image data from the client
             image_data = await websocket.recv()
-    
             # Decode the base64-encoded image data
             image_bytes = base64.b64decode(image_data)
-            
-            img_buffer = BytesIO(img_bytes)
+            img_buffer = BytesIO(image_bytes)
             # Open the image using PIL
             img = Image.open(img_buffer)
             handle_frame(np.asarray(img))
-        except KeyboardInterrupt as e:
-            print("Interrupted")
-            break
-        except Exception as e:
-            print(f"Error: {e}")
-        finally:
-            await websocket.close()
+    except KeyboardInterrupt as e:
+        print("Interrupted")
+    except Exception as e:
+        print(f"Error: {e}")
+        pass
+    finally:
+        await websocket.close()
 
 
 def main():
