@@ -13,6 +13,8 @@ CORS(app)
 # Existing user data (replace with your data storage logic)
 users = {}
 
+BASE_PATH =  "http://65.108.33.114:5000"
+
 @app.route("/")
 def hello_world():
     return "Hello, World🙌!"
@@ -24,7 +26,7 @@ def get_images():
     files = os.listdir(directory)
     user_id = request.args.get("userId")
     if not user_id:
-        allImages_urls = [f"http://65.108.33.114:5000/{directory}{file}" for file in files]
+        allImages_urls = [f"{BASE_PATH}/{directory}{file}" for file in files]
         return jsonify({"imageUrls": allImages_urls})    
     userSelfie = Image.open(f"./static/userSelfies/{user_id}.png")
     userImages = []
@@ -33,7 +35,7 @@ def get_images():
         contain_user = face_recognition(userSelfie, img)
         if contain_user:
             userImages.append(file)
-    userImages_urls = [f"http://65.108.33.114:5000/{directory}{file}" for file in userImages]    
+    userImages_urls = [f"{BASE_PATH}/{directory}{file}" for file in userImages]    
     return jsonify({"imageUrls": userImages_urls})
 
 
