@@ -73,8 +73,7 @@ export default function SharedModal({
                   src={currentPhoto}
                   width={navigation ? 1280 : 1920}
                   height={navigation ? 853 : 1280}
-                  priority
-                  alt="Next.js Conf image"
+                  alt="Event image"
                   onLoad={() => setLoaded(true)}
                 />
               </motion.div>
