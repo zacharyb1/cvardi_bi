@@ -8,7 +8,6 @@ import { useEffect, useState } from "react";
 import { fetchImages, uploadUserPhoto } from "../service/api";
 import LoadingDots from "../components/Loading";
 import { toast, Toaster } from 'sonner';
-import { Tab } from '@headlessui/react'
 
 const Home: NextPage = () => {
   const router = useRouter();

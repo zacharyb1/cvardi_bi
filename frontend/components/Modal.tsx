@@ -71,10 +71,7 @@ export default function Modal({
         animate={{ opacity: 1 }}
       />
       <SharedModal
-        index={curIndex}
         direction={direction}
-        images={images}
-        changePhotoId={changePhotoId}
         closeModal={handleClose}
         navigation={true}
       />
