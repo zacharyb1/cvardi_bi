@@ -7,6 +7,7 @@ import Modal from "../components/Modal";
 import CameraModal from "../components/CameraModal";
 import { useImages } from '../data/images';
 import { useState } from "react";
+import { uploadUserPhoto } from "../service/api";
 
 const Home: NextPage = () => {
   const router = useRouter();
@@ -19,9 +20,10 @@ const Home: NextPage = () => {
     setUploading(true);
   }
 
-  const handleConfirmUploadPhoto = async() => {
+  const handleConfirmUploadPhoto = async(userPhoto: File) => {
     try {
       // send image to server
+      await uploadUserPhoto(userPhoto)
     } catch (error) {
       console.error('Failed to upload photo', error);
     } finally {
@@ -48,9 +50,8 @@ const Home: NextPage = () => {
             setUploading(false)
           } }
         /> }
-         <div className="after:content relative mb-5 flex h-[229px] flex-col items-center justify-end gap-4 overflow-hidden rounded-lg bg-white/10 px-6 pb-16 pt-64 text-center text-white shadow-highlight after:pointer-events-none after:absolute after:inset-0 after:rounded-lg after:shadow-highlight lg:pt-0">
-            {/* <Logo /> */}
-            <h1 className="mt-8 mb-4 text-base font-bold  tracking-widest">
+         <div className="mb-5 flex flex-col items-center justify-end overflow-hidden rounded-lg bg-white/10 px-6 py-8 text-center text-white shadow-highlight ">
+            <h1 className="mb-4 text-base font-bold  tracking-widest">
               2024 AaltoAI Hackthon Event Photos
             </h1>
             <p className="max-w-[40ch] text-white/75 sm:max-w-[32ch]">
@@ -63,7 +64,7 @@ const Home: NextPage = () => {
               Find your moments
             </button>
           </div>
-          <div className="columns-2 gap-2 sm:columns-2 xl:columns-3 2xl:columns-4">
+          <div className="columns-1 gap-2 sm:columns-2 xl:columns-3 2xl:columns-4">
           {images.map((image: string) => (
             <Link
               key={image}

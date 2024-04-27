@@ -9,7 +9,7 @@ function CameraDialog({
   handleSubmit,
   handleClose
 }: {
-  handleSubmit: () => Promise<void>;
+  handleSubmit: (file: File) => Promise<void>;
   handleClose: () => void;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -26,6 +26,9 @@ function CameraDialog({
       const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }});
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
+        videoRef.current.onloadedmetadata = () => {
+          videoRef.current?.play();
+        }
       }
     }
   };
@@ -51,7 +54,7 @@ function CameraDialog({
     if (photoImageFile) {
       try {
         setUploading(true);
-        await handleSubmit();
+        await handleSubmit(photoImageFile);
       } catch (error) {
         console.error('Failed to upload photo', error);
       } finally {
@@ -81,7 +84,13 @@ function CameraDialog({
               <XMarkIcon className='w-6 h-6' />
             </button>
           </div>
-          <h3 className='mb-12 font-bold text-xl'>Please Take a photo </h3>
+          <h3 className='mb-12 font-bold text-xl'>Please Take a photo</h3>
+          <input type="file" accept="image/*;capture=camera"  onChange={(e) => {
+            if (e.target.files && e.target.files.length > 0) {
+              setImageFile(e.target.files[0]);
+            }
+          }} 
+          />
           { photoImageFile ? (
             <img src={URL.createObjectURL(photoImageFile)} className='w-full' />
           ) : (
