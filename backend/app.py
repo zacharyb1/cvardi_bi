@@ -22,7 +22,7 @@ def get_images():
     directory = 'static/editedImages/'    
     files = os.listdir(directory)
     filtered_files = [file for file in files if user_id in file]      
-    image_urls = [f"https://cvardi-bi-back.onrender.com/{directory}{file}" for file in filtered_files]    
+    image_urls = [f"http://65.108.33.114:5000/{directory}{file}" for file in filtered_files]    
     return jsonify({"imageUrls": image_urls})
 
 
