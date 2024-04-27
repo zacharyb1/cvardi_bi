@@ -16,14 +16,15 @@ def hello_world():
 
 @app.route("/images", methods=["GET"])
 def get_images():
-    user_id = request.args.get("userId")
-    if not user_id:
-        return jsonify({"error": "Missing userId parameter"}), 400    
     directory = 'static/editedImages/'    
     files = os.listdir(directory)
+    user_id = request.args.get("userId")
+    if not user_id:
+        allImages_urls = [f"http://65.108.33.114:5000/{directory}{file}" for file in files]
+        return jsonify({"imageUrls": allImages_urls})
     filtered_files = [file for file in files if user_id in file]      
-    image_urls = [f"http://65.108.33.114:5000/{directory}{file}" for file in filtered_files]    
-    return jsonify({"imageUrls": image_urls})
+    filteredImages_urls = [f"http://65.108.33.114:5000/{directory}{file}" for file in filtered_files]    
+    return jsonify({"imageUrls": filteredImages_urls})
 
 
 @app.route('/user', methods=['POST'])
