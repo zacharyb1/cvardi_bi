@@ -1,0 +1,14 @@
+name: aalto
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+  - nodefaults
+dependencies:
+  - python>=3.11,<3.12
+  - poetry=1.8.2
+  - pytorch=2.2.2
+  - torchvision=0.17.2
+  - torchaudio=2.2.2
+  - pytorch-cuda=12.1
+  - pip
