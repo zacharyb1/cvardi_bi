@@ -7,7 +7,7 @@ import websockets
 
 
 async def send_image(frame: np.ndarray):
-    async with websockets.connect("ws://localhost:8765") as websocket:
+    async with websockets.connect("ws://65.108.33.114:8765") as websocket:
         try:
             # Convert the frame to bytes
             _, buffer = cv2.imencode(".jpg", frame)
