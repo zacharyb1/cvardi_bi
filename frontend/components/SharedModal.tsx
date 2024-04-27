@@ -7,7 +7,6 @@ import {
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 import { AnimatePresence, motion, MotionConfig } from "framer-motion";
-import Image from "next/image";
 import { useState } from "react";
 import { useSwipeable } from "react-swipeable";
 import { variants } from "../utils/animationVariants";
@@ -70,7 +69,7 @@ export default function SharedModal({
                 exit="exit"
                 className="absolute"
               >
-                <Image
+                <img
                   src={currentPhoto}
                   width={navigation ? 1280 : 1920}
                   height={navigation ? 853 : 1280}

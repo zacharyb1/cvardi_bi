@@ -1,18 +1,17 @@
 import type { NextPage } from "next";
 import Head from "next/head";
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import Modal from "../components/Modal";
 import CameraModal from "../components/CameraModal";
 import { useImages } from '../data/images';
-import { useState } from "react";
-import { uploadUserPhoto } from "../service/api";
+import { useEffect, useState } from "react";
+import { fetchImages, uploadUserPhoto } from "../service/api";
 
 const Home: NextPage = () => {
   const router = useRouter();
   const { photoId } = router.query;
-  const { images } = useImages();
+  const [images, setImages] = useState([]);
   const [ isUploading, setUploading] = useState(false);
 
   const handleGetUserPhotos = () => {
@@ -20,10 +19,22 @@ const Home: NextPage = () => {
     setUploading(true);
   }
 
+  useEffect(() => {
+    fetchImages().then((res) => {
+      console.log('images', res.data)
+      setImages(res.data.imageUrls)
+    }).catch((err) => {
+      console.log('error', err)
+    }
+    )
+  }, [])
+
   const handleConfirmUploadPhoto = async(userPhoto: File) => {
     try {
       // send image to server
-      await uploadUserPhoto(userPhoto)
+      const {id} = await uploadUserPhoto(userPhoto)
+      const res = await fetchImages(id);
+      setImages(res.data.imageUrls);
     } catch (error) {
       console.error('Failed to upload photo', error);
     } finally {
@@ -65,6 +76,11 @@ const Home: NextPage = () => {
             </button>
           </div>
           <div className="columns-1 gap-2 sm:columns-2 xl:columns-3 2xl:columns-4">
+          {images.length === 0 && (
+            <div className="text-center text-white/75">
+              No photos yet.
+            </div>
+            )}
           {images.map((image: string) => (
             <Link
               key={image}
@@ -72,12 +88,11 @@ const Home: NextPage = () => {
               shallow
               className="after:content group relative mb-5 block w-full cursor-zoom-in after:pointer-events-none after:absolute after:inset-0 after:rounded-lg after:shadow-highlight"
             >
-              <Image
-                alt="Next.js Conf photo"
+              <img
+                alt="event photo"
                 className="transform rounded-lg brightness-90 transition will-change-auto group-hover:brightness-110"
                 style={{ transform: "translate3d(0, 0, 0)" }}
                 placeholder="blur"
-                blurDataURL={image}
                 src={image}
                 width={720}
                 height={480}

@@ -1,6 +1,8 @@
 //@ts-ignore
 import axios, { AxiosRequestConfig } from 'axios'
-const apiServerUrl = 'https://cvardi-bi-back.onrender.com'
+
+const apiServerUrl = process.env.NEXT_PUBLIC_API_URL
+
 import { v4 as uuid } from "uuid";
 
 export const uploadUserPhoto = async (
@@ -10,21 +12,21 @@ export const uploadUserPhoto = async (
 ) => {
   const fd = new FormData()
   const unique_id = uuid();
-
   fd.append('image', file)
   fd.append('id', unique_id)
-
   const config: AxiosRequestConfig = {
     url: `${apiServerUrl}/user`,
     method: 'POST',
     headers: {
       'content-type': 'multipart/form-data',
-      // Authorization: `Bearer ${accessToken}`,
     },
     data: fd,
   }
   const response = await axios(config)
-  return response
+  return {
+    ...response.data,
+    id: unique_id,
+  }
 }
 
 
