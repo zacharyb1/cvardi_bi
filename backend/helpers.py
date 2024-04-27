@@ -13,16 +13,21 @@ def save_image_to_folder(image_data, filename):
         return None, str(e)
 
 
+def recognise_gesture(image):
+    # implement gesture recognition
+    return True
+
 def face_recognition(selfie, image):
     # implement face recognition
     return True
 
-def edit_image(image, imageName):
+def edit_image(imageData, imageName):
     # implement image editing
+    editedImage = imageData
     directory = 'static/editedImages'
     file_path = os.path.join(directory, imageName)
     try:
-        image.save(file_path)
+        editedImage.save(file_path)
     except Exception as e:
         return str(e)
 

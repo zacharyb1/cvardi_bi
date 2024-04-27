@@ -59,15 +59,14 @@ def check_gesture():
     if 'image' not in request.files:
         return jsonify({"error": "No image provided"}), 400
     image = request.files['image']
-    if image.filename == '':
+    imageData = image.read()
+    imageName = image.filename
+    if imageName == '':
         return jsonify({"error": "No image selected"}), 400
-    
-    have_gesture = True # implement gesture recognition here
+    have_gesture = recognise_gesture(imageData)
     if have_gesture:
-            label_images()
-
+            edit_image(imageData, imageName)
     return jsonify({"success": True})
-
 
 if __name__ == "__main__":
     app.config['STATIC_FOLDER'] = 'static'
