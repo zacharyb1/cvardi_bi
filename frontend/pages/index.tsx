@@ -6,27 +6,42 @@ import Modal from "../components/Modal";
 import CameraModal from "../components/CameraModal";
 import { useEffect, useState } from "react";
 import { fetchImages, uploadUserPhoto } from "../service/api";
+import LoadingDots from "../components/Loading";
+import { toast, Toaster } from 'sonner';
+import { Tab } from '@headlessui/react'
 
 const Home: NextPage = () => {
   const router = useRouter();
   const { photoId } = router.query;
   const [images, setImages] = useState([]);
+  const [userImages, setUserImages] = useState([]);
+
   const [ isUploading, setUploading] = useState(false);
-  const [userId, setUserId] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+  const [selectedTab, setSelectedTab] = useState('all');
+  const [userId, setUserId] = useState(null);
 
   const handleGetUserPhotos = () => {
     // get a image from camera
     setUploading(true);
   }
 
-  useEffect(() => {
-    fetchImages().then((res) => {
-      console.log('images', res.data)
-      setImages(res.data.imageUrls)
-    }).catch((err) => {
-      console.log('error', err)
+
+  const getImages = async () => {
+    try {
+      setIsLoading(true);
+      const res = await fetchImages();
+      setImages(res.data.imageUrls);
+    } catch (error) {
+      console.error('Failed to fetch images', error);
+      toast.error('Failed to fetch images');
+    } finally {
+      setIsLoading(false);
     }
-    )
+  }
+
+  useEffect(() => {
+    getImages();
   }, [])
 
   const handleConfirmUploadPhoto = async(userPhoto: File) => {
@@ -35,13 +50,73 @@ const Home: NextPage = () => {
       const {id} = await uploadUserPhoto(userPhoto)
       setUserId(id);
       const res = await fetchImages(id);
-      setImages(res.data.imageUrls);
+      setUserImages(res.data.imageUrls);
       setUploading(false);
+      setSelectedTab('user');
     } catch (error) {
       console.error('Failed to upload photo', error);
     }
   }
 
+  const ImageList = ({images}: 
+    {images: string[]}
+  ) => {
+    return (
+      <>
+        {images.length === 0 && !isLoading && (
+          <div className="text-center text-white/75 mt-2">
+            {(selectedTab === 'user' && !userId) ? 'Please click the button above to upload your selfie' : 'No photos yet'}
+          </div>
+          )}
+        {isLoading ? <div className="flex justify-center w-full">
+        <LoadingDots color="#fff" />
+        </div>
+        : images.map((image: string) => (
+          <Link
+            key={image}
+            href={`/photo?imageUrl=${encodeURIComponent(image)}`}
+            shallow
+            className="after:content group relative mb-5 block w-full cursor-zoom-in after:pointer-events-none after:absolute after:inset-0 after:rounded-lg after:shadow-highlight"
+          >
+            <img
+              alt="event photo"
+              className="transform rounded-lg brightness-90 transition will-change-auto group-hover:brightness-110"
+              style={{ transform: "translate3d(0, 0, 0)" }}
+              placeholder="blur"
+              src={image}
+              width={720}
+              height={480}
+              sizes="(max-width: 640px) 100vw,
+                (max-width: 1280px) 50vw,
+                (max-width: 1536px) 33vw,
+                25vw"
+            />
+          </Link>
+        ))}
+      </>
+    )
+  }
+
+  const TabItem = ({text, isSelected, id}) => {
+    if (isSelected) {
+      return (
+        <li className="flex-1" onClick={() => setSelectedTab(id)}>
+          <a
+            href="#"
+            className="relative flex items-center justify-center gap-2 px-1 py-3 text-blue-400 after:absolute after:left-0 after:bottom-0 after:h-0.5 after:w-full after:bg-blue-400 hover:text-blue-400"
+          >
+           {text}
+          </a>
+        </li>
+      )
+    }
+    return (
+      <li className="flex-1" onClick={() => setSelectedTab(id)}>
+        <a href="#" className="flex items-center justify-center gap-2 px-1 py-3 text-gray-500 hover:text-blue-400">
+          {text}</a>
+      </li>
+    )
+  } 
   return (
     <>
       <Head>
@@ -75,52 +150,19 @@ const Home: NextPage = () => {
               Find your moments
             </button>
           </div>
-          <div className="columns-1 gap-2 sm:columns-2 xl:columns-3 2xl:columns-4">
-            {userId && (
-              <h3 className="text-white/75 text-center mb-4">
-                Your photos
-              </h3>
-            )}
-          {images.length === 0 && (
-            <div className="text-center text-white/75">
-              No photos yet.
+          <div className="text-white">
+              <div className="border-b border-b-gray-200">
+                <ul className="-mb-px flex items-center gap-4 text-sm font-medium">
+                    <TabItem text="All Photos" isSelected={selectedTab === 'all'} id="all"/>
+                    <TabItem text="Your Photos" isSelected={selectedTab === 'user'} id="user" />
+                  </ul>
+                </div>
+              </div>
+            <div className="columns-1 gap-2 sm:columns-2 xl:columns-3 2xl:columns-4 mt-2">
+              {selectedTab === 'user' ? <ImageList images={userImages} /> : <ImageList images={images}/>}
             </div>
-            )}
-          {images.map((image: string) => (
-            <Link
-              key={image}
-              href={`/photo?imageUrl=${encodeURIComponent(image)}`}
-              shallow
-              className="after:content group relative mb-5 block w-full cursor-zoom-in after:pointer-events-none after:absolute after:inset-0 after:rounded-lg after:shadow-highlight"
-            >
-              <img
-                alt="event photo"
-                className="transform rounded-lg brightness-90 transition will-change-auto group-hover:brightness-110"
-                style={{ transform: "translate3d(0, 0, 0)" }}
-                placeholder="blur"
-                src={image}
-                width={720}
-                height={480}
-                sizes="(max-width: 640px) 100vw,
-                  (max-width: 1280px) 50vw,
-                  (max-width: 1536px) 33vw,
-                  25vw"
-              />
-            </Link>
-          ))}
-        </div>
+        <Toaster position="top-center" />
       </main>
-      {/* <footer className="p-6 text-center text-white/80 sm:p-12">
-        Pictures are all from{" "}
-        <a
-          href="https://eu.junctionplatform.com/events/aaltoai-hackathon"
-          target="_blank"
-          className="font-semibold hover:text-white"
-          rel="noreferrer"
-        >
-          AaltoAI Hackathon
-        </a>
-      </footer> */}
     </>
   );
 };

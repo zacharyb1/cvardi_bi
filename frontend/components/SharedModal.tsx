@@ -43,7 +43,6 @@ export default function SharedModal({
     trackMouse: true,
   });
 
-  let currentImage = images ? images[index] : currentPhoto;
 
   return (
     <MotionConfig
