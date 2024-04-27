@@ -10,10 +10,6 @@ const Home: NextPage = () => {
     router.push("/", undefined, { shallow: true });
   }
 
-  function changePhotoId(newVal: number) {
-    return newVal;
-  }
-
   return (
     <>
       <Head>

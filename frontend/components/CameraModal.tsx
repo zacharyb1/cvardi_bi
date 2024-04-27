@@ -15,6 +15,7 @@ function CameraDialog({
 }) {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [isUploading, setUploading] = useState(false);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleConfirm = async() => {
@@ -47,7 +48,7 @@ function CameraDialog({
               <XMarkIcon className='w-6 h-6' />
             </button>
           </div>
-          <h3 className='mb-12 font-bold text-xl'>Please Take a photo</h3>
+          <h3 className='mb-12 font-bold text-xl'>Please take a photo</h3>
           <input 
             ref={fileInputRef}
             type="file" accept="image/*;capture=camera"  

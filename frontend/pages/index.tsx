@@ -9,60 +9,89 @@ import { fetchImages, uploadUserPhoto } from "../service/api";
 import LoadingDots from "../components/Loading";
 import { toast, Toaster } from 'sonner';
 
+const CVARDI_BI_USER_KEY = 'cvaradi-bi:user_id';
 const Home: NextPage = () => {
   const router = useRouter();
   const { photoId } = router.query;
   const [images, setImages] = useState([]);
   const [userImages, setUserImages] = useState([]);
 
-  const [ isUploading, setUploading] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [ isUserImageUploading, setUserImageLoading] = useState(false);
+  const [ isAllImageLoading, setAllImageLoading] = useState(false);
+  const [isOpenCameraModal, setOpenCameraModal] = useState(false);
+
   const [selectedTab, setSelectedTab] = useState('all');
   const [userId, setUserId] = useState(null);
 
   const handleGetUserPhotos = () => {
     // get a image from camera
-    setUploading(true);
+    setUserImages([]);
+    localStorage.removeItem(CVARDI_BI_USER_KEY);
+    setUserId(null);
+    setOpenCameraModal(true);
   }
 
+  useEffect(() => {
+    // get all images
+    getImages();
+    // get user images
+    const savedUserId = localStorage.getItem(CVARDI_BI_USER_KEY);
+    if (savedUserId) {
+      setUserId(savedUserId);
+      getUserImages(savedUserId);
+    }
+  }, []);
+
+  const getUserImages = async (id: string) => {
+    try {
+      setUserImageLoading(true);
+      const res = await fetchImages(id);
+      setUserImages(res.data.imageUrls);
+      setUserImageLoading(false);
+      setSelectedTab('user');
+    } catch (error) {
+      console.error('Failed to fetch your images', error);
+      toast.error('Failed to fetch your images');
+    } finally {
+      setUserImageLoading(false);
+    }
+  }
 
   const getImages = async () => {
     try {
-      setIsLoading(true);
+      setAllImageLoading(true);
       const res = await fetchImages();
       setImages(res.data.imageUrls);
     } catch (error) {
       console.error('Failed to fetch images', error);
       toast.error('Failed to fetch images');
     } finally {
-      setIsLoading(false);
+      setAllImageLoading(false);
     }
   }
-
-  useEffect(() => {
-    getImages();
-  }, [])
 
   const handleConfirmUploadPhoto = async(userPhoto: File) => {
     try {
       // send image to server
       const {id} = await uploadUserPhoto(userPhoto)
       setUserId(id);
-      const res = await fetchImages(id);
-      setUserImages(res.data.imageUrls);
-      setUploading(false);
-      setSelectedTab('user');
+      localStorage.setItem(CVARDI_BI_USER_KEY, id);
+      await getUserImages(id);
+      setOpenCameraModal(false);
     } catch (error) {
       console.error('Failed to upload photo', error);
     }
   }
 
-  const ImageList = ({images}: 
-    {images: string[]}
+  const ImageList = ({type}: 
+    { type: 'user' | 'all'
+    }
   ) => {
+    const imageList = type === 'user' ? userImages : images;
+    const isLoading = type === 'user' ? isUserImageUploading : isAllImageLoading;
     return (
       <>
-        {images.length === 0 && !isLoading && (
+        {imageList.length === 0 && !isLoading && (
           <div className="text-center text-white/75 mt-2">
             {(selectedTab === 'user' && !userId) ? 'Please click the button above to upload your selfie' : 'No photos yet'}
           </div>
@@ -70,7 +99,7 @@ const Home: NextPage = () => {
         {isLoading ? <div className="flex justify-center w-full">
         <LoadingDots color="#fff" />
         </div>
-        : images.map((image: string) => (
+        : imageList.map((image: string) => (
           <Link
             key={image}
             href={`/photo?imageUrl=${encodeURIComponent(image)}`}
@@ -129,10 +158,10 @@ const Home: NextPage = () => {
             }}
           />
         )}
-        {isUploading && <CameraModal 
+        {isOpenCameraModal && <CameraModal 
           handleSubmit={handleConfirmUploadPhoto}
           handleClose={() => {
-            setUploading(false)
+            setOpenCameraModal(false)
           } }
         /> }
          <div className="mb-5 flex flex-col items-center justify-end overflow-hidden rounded-lg bg-white/10 px-6 py-8 text-center text-white shadow-highlight ">
@@ -158,7 +187,7 @@ const Home: NextPage = () => {
                 </div>
               </div>
             <div className="columns-1 gap-2 sm:columns-2 xl:columns-3 2xl:columns-4 mt-2">
-              {selectedTab === 'user' ? <ImageList images={userImages} /> : <ImageList images={images}/>}
+              {selectedTab === 'user' ? <ImageList type="user"/> : <ImageList type={"all"}/>}
             </div>
         <Toaster position="top-center" />
       </main>
