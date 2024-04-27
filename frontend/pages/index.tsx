@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import Modal from "../components/Modal";
 import CameraModal from "../components/CameraModal";
-import { useImages } from '../data/images';
 import { useEffect, useState } from "react";
 import { fetchImages, uploadUserPhoto } from "../service/api";
 
@@ -13,6 +12,7 @@ const Home: NextPage = () => {
   const { photoId } = router.query;
   const [images, setImages] = useState([]);
   const [ isUploading, setUploading] = useState(false);
+  const [userId, setUserId] = useState('');
 
   const handleGetUserPhotos = () => {
     // get a image from camera
@@ -33,12 +33,12 @@ const Home: NextPage = () => {
     try {
       // send image to server
       const {id} = await uploadUserPhoto(userPhoto)
+      setUserId(id);
       const res = await fetchImages(id);
       setImages(res.data.imageUrls);
+      setUploading(false);
     } catch (error) {
       console.error('Failed to upload photo', error);
-    } finally {
-      setUploading(false);
     }
   }
 
@@ -76,6 +76,11 @@ const Home: NextPage = () => {
             </button>
           </div>
           <div className="columns-1 gap-2 sm:columns-2 xl:columns-3 2xl:columns-4">
+            {userId && (
+              <h3 className="text-white/75 text-center mb-4">
+                Your photos
+              </h3>
+            )}
           {images.length === 0 && (
             <div className="text-center text-white/75">
               No photos yet.
