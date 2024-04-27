@@ -24,6 +24,6 @@ def label_images(image):
 
 
 # testers: works
-img = Image.open('./static/good-selfie.jpg')
+# img = Image.open('./static/good-selfie.jpg')
 # save_image_to_folder(img, 'good-selfie.jpg')
-label_images(img)
+# label_images(img)
