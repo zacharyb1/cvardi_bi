@@ -12,9 +12,25 @@ def save_image_to_folder(image_data, filename):
     except Exception as e:
         return None, str(e)
 
+
+def face_recognition(selfie, image):
+    # implement face recognition
+    return True
+
+def edit_image(image, imageName):
+    # implement image editing
+    directory = 'static/editedImages'
+    file_path = os.path.join(directory, imageName)
+    try:
+        image.save(file_path)
+    except Exception as e:
+        return str(e)
+
 def label_images(image):
     # implement image labeling
-    imageName = 'image1_user1_user2_user3.png' 
+    imageName = 'image1_user1_user2_user3.png'
+
+    # saving labeled image
     directory = 'static/rawImages'
     file_path = os.path.join(directory, imageName)
     try:

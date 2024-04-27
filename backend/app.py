@@ -1,9 +1,11 @@
 import csv
 import os
+from PIL import Image
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from helpers import save_image_to_folder
 from helpers import label_images
+from helpers import face_recognition
 
 app = Flask(__name__)
 CORS(app)
@@ -23,10 +25,16 @@ def get_images():
     user_id = request.args.get("userId")
     if not user_id:
         allImages_urls = [f"http://65.108.33.114:5000/{directory}{file}" for file in files]
-        return jsonify({"imageUrls": allImages_urls})
-    filtered_files = [file for file in files if user_id in file]      
-    filteredImages_urls = [f"http://65.108.33.114:5000/{directory}{file}" for file in filtered_files]    
-    return jsonify({"imageUrls": filteredImages_urls})
+        return jsonify({"imageUrls": allImages_urls})    
+    userSelfie = Image.open(f"./static/userSelfies/{user_id}.png")
+    userImages = []
+    for file in files:
+        img = Image.open(f"{directory}{file}")
+        contain_user = face_recognition(userSelfie, img)
+        if contain_user:
+            userImages.append(file)
+    userImages_urls = [f"http://65.108.33.114:5000/{directory}{file}" for file in userImages]    
+    return jsonify({"imageUrls": userImages_urls})
 
 
 @app.route('/user', methods=['POST'])
